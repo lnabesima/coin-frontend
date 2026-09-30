@@ -149,5 +149,9 @@ vite.config.ts.timestamp-*
 .turbo
 
 docs/
+ARCHITECTURE.md
+INFRASTRUCTURE_AUDIT.md
+_bmad-output/
+
 # BMad personal config
 _bmad/custom/*.user.toml
