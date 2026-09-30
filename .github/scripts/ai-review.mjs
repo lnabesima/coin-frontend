@@ -6,6 +6,7 @@ const {
   PR_NUMBER,
   BASE_REF,
   REPO,
+  COMMIT_SHA,
   GEMINI_MODEL = 'gemini-3.8-flash',
 } = process.env;
 
@@ -25,13 +26,6 @@ async function main() {
   }
 
   console.log(`Starting AI code review for PR #${PR_NUMBER} on ${REPO}...`);
-
-  // Fetch base branch reference if needed
-  try {
-    execFileSync('git', ['fetch', 'origin', BASE_REF, '--depth=100'], { stdio: 'inherit' });
-  } catch (err) {
-    console.warn(`Warning: Could not fetch origin/${BASE_REF}, continuing with local ref...`);
-  }
 
   // Get list of changed files
   let changedFiles = '';
@@ -94,13 +88,15 @@ async function main() {
 
   console.log(`Analyzing ${truncatedDiff.length} characters of git diff with Gemini (${GEMINI_MODEL})...`);
 
-  let commitHash = 'HEAD';
-  try {
-    commitHash = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
-      encoding: 'utf-8',
-    }).trim();
-  } catch {
-    // fallback
+  let commitHash = COMMIT_SHA ? COMMIT_SHA.substring(0, 7) : 'HEAD';
+  if (!COMMIT_SHA) {
+    try {
+      commitHash = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+        encoding: 'utf-8',
+      }).trim();
+    } catch {
+      // fallback
+    }
   }
 
   const reviewMarkdown = await generateReviewWithGemini(truncatedDiff, changedFiles, commitHash);
@@ -119,6 +115,7 @@ Project Standards & Architectural Rules:
 - Resilient Architecture: Backend is an Azure Container App with 5-15s scale-to-zero cold-starts. TanStack Query should use exponential backoff retry and optimistic updates.
 - Performance: Avoid unnecessary re-renders, memory leaks, and unmemoized expensive operations.
 - Tone: Direct, concise, technical, and constructive. Be sharp like a senior staff engineer. No fluff.
+- Model & Environment: The review runs on Gemini (${GEMINI_MODEL}) in CI. Do not question or critique the model name or API version.
 
 Changed Files Summary:
 ${changedFiles}
@@ -152,7 +149,7 @@ Produce a structured GitHub Flavored Markdown review with this exact structure:
 ### Architecture & Standards Alignment
 - Brief verification against repository rules (Biome, client-side security, error resilience).`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
   const payload = {
     contents: [
@@ -167,7 +164,10 @@ Produce a structured GitHub Flavored Markdown review with this exact structure:
 
   const response = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-goog-api-key': GEMINI_API_KEY,
+    },
     body: JSON.stringify(payload),
   });
 
