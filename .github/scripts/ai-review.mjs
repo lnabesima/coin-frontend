@@ -116,9 +116,9 @@ Changed Files Summary:
 ${changedFiles}
 
 Git Diff:
-\`\`\`diff
+<git_diff>
 ${diff}
-\`\`\`
+</git_diff>
 
 Instructions for Review Output:
 Produce a structured GitHub Flavored Markdown review with this exact structure:
@@ -154,7 +154,6 @@ Produce a structured GitHub Flavored Markdown review with this exact structure:
     ],
     generationConfig: {
       temperature: 0.2,
-      maxOutputTokens: 2048,
     },
   };
 
