@@ -1,4 +1,4 @@
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 const {
   GITHUB_TOKEN,
@@ -28,7 +28,7 @@ async function main() {
 
   // Fetch base branch reference if needed
   try {
-    execSync(`git fetch origin ${BASE_REF} --depth=100`, { stdio: 'inherit' });
+    execFileSync('git', ['fetch', 'origin', BASE_REF, '--depth=100'], { stdio: 'inherit' });
   } catch (err) {
     console.warn(`Warning: Could not fetch origin/${BASE_REF}, continuing with local ref...`);
   }
@@ -36,14 +36,18 @@ async function main() {
   // Get list of changed files
   let changedFiles = '';
   try {
-    changedFiles = execSync(`git diff --name-status origin/${BASE_REF}...HEAD`, {
-      encoding: 'utf-8',
-    }).trim();
+    changedFiles = execFileSync(
+      'git',
+      ['diff', '--name-status', `origin/${BASE_REF}...HEAD`],
+      { encoding: 'utf-8', maxBuffer: 1024 * 1024 * 2 }
+    ).trim();
   } catch (err) {
     console.warn('Could not determine changed files relative to origin, using HEAD~1: ', err);
-    changedFiles = execSync('git diff --name-status HEAD~1...HEAD', {
-      encoding: 'utf-8',
-    }).trim();
+    changedFiles = execFileSync(
+      'git',
+      ['diff', '--name-status', 'HEAD~1...HEAD'],
+      { encoding: 'utf-8', maxBuffer: 1024 * 1024 * 2 }
+    ).trim();
   }
 
   console.log(`Changed files:\n${changedFiles}`);
@@ -62,16 +66,18 @@ async function main() {
 
   let diff = '';
   try {
-    diff = execSync(
-      `git diff origin/${BASE_REF}...HEAD -- . ${ignorePatterns.join(' ')}`,
+    diff = execFileSync(
+      'git',
+      ['diff', `origin/${BASE_REF}...HEAD`, '--', '.', ...ignorePatterns],
       { encoding: 'utf-8', maxBuffer: 1024 * 1024 * 5 }
     ).trim();
   } catch (err) {
     console.warn('Could not diff against origin base, falling back to HEAD~1: ', err);
-    diff = execSync(`git diff HEAD~1...HEAD -- . ${ignorePatterns.join(' ')}`, {
-      encoding: 'utf-8',
-      maxBuffer: 1024 * 1024 * 5,
-    }).trim();
+    diff = execFileSync(
+      'git',
+      ['diff', 'HEAD~1...HEAD', '--', '.', ...ignorePatterns],
+      { encoding: 'utf-8', maxBuffer: 1024 * 1024 * 5 }
+    ).trim();
   }
 
   if (!diff) {
@@ -90,7 +96,9 @@ async function main() {
 
   let commitHash = 'HEAD';
   try {
-    commitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
+    commitHash = execFileSync('git', ['rev-parse', '--short', 'HEAD'], {
+      encoding: 'utf-8',
+    }).trim();
   } catch {
     // fallback
   }
@@ -192,7 +200,7 @@ async function postOrUpdateComment(body) {
 
   // Check for existing review comment
   console.log('Checking for existing review comment on PR...');
-  const listRes = await fetch(commentsUrl, { headers });
+  const listRes = await fetch(`${commentsUrl}?per_page=100`, { headers });
   if (!listRes.ok) {
     throw new Error(`Failed to list PR comments: ${listRes.statusText}`);
   }
