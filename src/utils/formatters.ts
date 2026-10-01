@@ -25,6 +25,11 @@ function assertValidDate(dateInput: Date | string): Date {
   throw new RangeError(`Invalid date: received "${dateInput}"`);
 }
 
+const brlCurrencyFormatter = new Intl.NumberFormat('pt-BR', {
+  style: 'currency',
+  currency: 'BRL',
+});
+
 /**
  * Formats a numeric value into Brazilian Real (BRL) currency format (e.g. "R$ 150,50").
  * Throws TypeError for non-finite or NaN inputs.
@@ -34,10 +39,7 @@ export function formatCurrency(amount: number): string {
     throw new TypeError(`Invalid currency amount: expected a finite number, received ${amount}`);
   }
 
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(amount);
+  return brlCurrencyFormatter.format(amount);
 }
 
 /**

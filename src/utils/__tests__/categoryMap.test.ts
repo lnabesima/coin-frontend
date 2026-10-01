@@ -11,6 +11,7 @@ import {
 import { describe, expect, it } from 'vitest';
 import { TransactionCategory } from '../../types/transaction.ts';
 import {
+  ALL_CATEGORIES,
   categoryMap,
   getAllCategories,
   getCategoryMeta,
@@ -97,11 +98,16 @@ describe('Category Map Utility', () => {
     });
   });
 
-  describe('getAllCategories', () => {
+  describe('getAllCategories & ALL_CATEGORIES', () => {
     it('returns an array containing all 8 categories', () => {
       const all = getAllCategories();
       expect(all).toHaveLength(8);
       expect(all.map((c) => c.id)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+    });
+
+    it('returns a pre-computed frozen array for stable references', () => {
+      expect(Object.isFrozen(ALL_CATEGORIES)).toBe(true);
+      expect(getAllCategories()).toBe(ALL_CATEGORIES);
     });
   });
 });

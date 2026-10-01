@@ -107,9 +107,13 @@ export function getCategoryMeta(category: TransactionCategory | number): Categor
   return categoryMap[category];
 }
 
+export const ALL_CATEGORIES: readonly CategoryMetadata[] = Object.freeze(
+  Object.values(categoryMap),
+);
+
 /**
  * Returns an ordered array of all category metadata, convenient for form selects and filter options.
  */
-export function getAllCategories(): CategoryMetadata[] {
-  return Object.values(categoryMap);
+export function getAllCategories(): readonly CategoryMetadata[] {
+  return ALL_CATEGORIES;
 }
