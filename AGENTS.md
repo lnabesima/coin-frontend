@@ -16,3 +16,7 @@
 - **Hosting & CI/CD**: Azure Static Web Apps (Free tier) in Resource Group `rg-coin-lnabesima`. Production deployment occurs strictly on push to `main`. Initial deployments use the default Azure hostname (`*.azurestaticapps.net`).
 - **Custom Domain**: Planned as `coin.lnabesima.dev` (pending domain/DNS provisioning).
 - **Backend Integration**: Communicates directly with `coin-backend` hosted on Azure Container Apps. The client must gracefully handle ACA scale-to-zero cold-starts (5-15s) with non-blocking status indicators and automatic retries.
+
+## Planning & Methodology
+- **BMad Method**: This repository uses the **BMad** framework for requirements discovery, architecture decisions, and implementation workflows.
+- **Artifacts Location**: All planning documents, design specifications, architecture records, and research reports must reside under `_bmad-output/` (as configured in `_bmad/config.toml`). Never create ad-hoc documentation or spec folders (such as `docs/superpowers/`).
