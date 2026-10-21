@@ -7,16 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": [
-      "src/**",
-      "index.html",
-      "vite.config.ts",
-      "package.json",
-      "tsconfig*.json",
-      "!_bmad",
-      "!_bmad-output",
-      "!.agents"
-    ]
+    "includes": ["src/**", "index.html", "vite.config.ts", "package.json", "tsconfig*.json"]
   },
   "formatter": {
     "enabled": true,
