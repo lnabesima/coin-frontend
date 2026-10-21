@@ -1,18 +1,32 @@
-import { Sparkles, Wallet } from 'lucide-react';
+import { LogOut, Sparkles, Wallet } from 'lucide-react';
 import { toast } from 'sonner';
+import { AuthScreen } from './components/Auth/AuthScreen.tsx';
+import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 
-export default function App() {
+function AuthenticatedDashboard() {
+  const { logout } = useAuth();
+
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-md bg-zinc-900/80 border border-zinc-800 rounded-2xl p-6 shadow-xl backdrop-blur">
-        <header className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
-            <Wallet className="w-6 h-6" aria-hidden="true" />
+        <header className="flex items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400">
+              <Wallet className="w-6 h-6" aria-hidden="true" />
+            </div>
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Coin</h1>
+              <p className="text-sm text-zinc-400">Personal Finance Tracker</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Coin</h1>
-            <p className="text-sm text-zinc-400">Personal Finance Tracker</p>
-          </div>
+          <button
+            type="button"
+            onClick={logout}
+            aria-label="Sair"
+            className="p-2 text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition duration-150 cursor-pointer"
+          >
+            <LogOut className="w-5 h-5" aria-hidden="true" />
+          </button>
         </header>
 
         <section className="space-y-4">
@@ -31,5 +45,23 @@ export default function App() {
         </section>
       </div>
     </main>
+  );
+}
+
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <AuthScreen />;
+  }
+
+  return <AuthenticatedDashboard />;
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
