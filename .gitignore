@@ -149,5 +149,10 @@ vite.config.ts.timestamp-*
 .turbo
 
 docs/
-# BMad personal config
-_bmad/custom/*.user.toml
+ARCHITECTURE.md
+INFRASTRUCTURE_AUDIT.md
+# AI Agent metadata and planning (isolated in workspace root)
+.agents/
+_bmad/
+_bmad-output/
+AGENTS.md
