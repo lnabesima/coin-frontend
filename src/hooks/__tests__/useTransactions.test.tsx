@@ -56,11 +56,13 @@ describe('useTransactions Hook', () => {
     });
 
     expect(result.current.isLoading).toBe(true);
+    expect(result.current.isFetching).toBe(true);
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
 
+    expect(result.current.isFetching).toBe(false);
     expect(result.current.transactions).toEqual(mockData);
     expect(transactionsApi.getTransactions).toHaveBeenCalledTimes(1);
     expect(transactionsApi.getTransactions).toHaveBeenCalledWith(

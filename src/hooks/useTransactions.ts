@@ -18,6 +18,7 @@ export function useTransactions({ year, month }: UseTransactionsParams) {
   return {
     transactions: query.data as TransactionResponseDto[] | undefined,
     isLoading: query.isLoading,
+    isFetching: query.isFetching,
     isSuccess: query.isSuccess,
     isError: query.isError,
     error: query.error,
