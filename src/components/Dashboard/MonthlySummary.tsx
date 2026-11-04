@@ -1,4 +1,5 @@
 import { TrendingDown, TrendingUp, Wallet } from 'lucide-react';
+import { useMemo } from 'react';
 import type { TransactionResponseDto } from '../../types/transaction.ts';
 import { TransactionType } from '../../types/transaction.ts';
 import { formatCurrency } from '../../utils/formatters.ts';
@@ -9,6 +10,26 @@ export interface MonthlySummaryProps {
 }
 
 export function MonthlySummary({ transactions, isLoading }: MonthlySummaryProps) {
+  const { totalIncome, totalExpenses, netBalance } = useMemo(() => {
+    let income = 0;
+    let expenses = 0;
+
+    for (const tx of transactions ?? []) {
+      if (tx.type === TransactionType.Income) {
+        income += tx.amount;
+      }
+      if (tx.type === TransactionType.Expense) {
+        expenses += tx.amount;
+      }
+    }
+
+    return {
+      totalIncome: income,
+      totalExpenses: expenses,
+      netBalance: income - expenses,
+    };
+  }, [transactions]);
+
   if (isLoading) {
     return (
       <section
@@ -25,20 +46,6 @@ export function MonthlySummary({ transactions, isLoading }: MonthlySummaryProps)
       </section>
     );
   }
-
-  const list = transactions ?? [];
-
-  const totalIncome = list.reduce(
-    (acc, tx) => (tx.type === TransactionType.Income ? acc + tx.amount : acc),
-    0,
-  );
-
-  const totalExpenses = list.reduce(
-    (acc, tx) => (tx.type === TransactionType.Expense ? acc + tx.amount : acc),
-    0,
-  );
-
-  const netBalance = totalIncome - totalExpenses;
 
   const isNeutral = Math.abs(netBalance) < 0.005;
   const isPositive = !isNeutral && netBalance > 0;

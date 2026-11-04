@@ -144,6 +144,8 @@ describe('Dashboard Component', () => {
     expect(
       screen.getByText(/não foi possível carregar as transações deste mês/i),
     ).toBeInTheDocument();
+    expect(screen.getByText(/erro ao carregar movimentações/i)).toBeInTheDocument();
+    expect(screen.queryByText(/nenhuma transação encontrada/i)).not.toBeInTheDocument();
 
     const retryButton = screen.getByRole('button', { name: /tentar novamente/i });
     expect(retryButton).not.toBeDisabled();

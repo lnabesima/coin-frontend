@@ -1,9 +1,14 @@
 import { FlaskConical } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { AuthScreen } from './components/Auth/AuthScreen.tsx';
 import { Dashboard } from './components/Dashboard/Dashboard.tsx';
-import { ComponentPlayground } from './components/Dev/ComponentPlayground.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
+
+const ComponentPlayground = lazy(() =>
+  import('./components/Dev/ComponentPlayground.tsx').then((m) => ({
+    default: m.ComponentPlayground,
+  })),
+);
 
 function AppContent() {
   const { isAuthenticated } = useAuth();
@@ -19,7 +24,11 @@ export default function App() {
   const [showPlayground, setShowPlayground] = useState(false);
 
   if (import.meta.env.DEV && showPlayground) {
-    return <ComponentPlayground onClose={() => setShowPlayground(false)} />;
+    return (
+      <Suspense fallback={null}>
+        <ComponentPlayground onClose={() => setShowPlayground(false)} />
+      </Suspense>
+    );
   }
 
   return (

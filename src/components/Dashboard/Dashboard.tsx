@@ -5,6 +5,13 @@ import { useTransactions } from '../../hooks/useTransactions.ts';
 import { MonthlySummary } from './MonthlySummary.tsx';
 import { MonthSelector } from './MonthSelector.tsx';
 
+function getFeedStatusMessage(isLoading: boolean, isError: boolean, count?: number): string {
+  if (isLoading) return 'Carregando movimentações...';
+  if (isError) return 'Erro ao carregar movimentações.';
+  if (!count) return 'Nenhuma transação encontrada neste mês.';
+  return `${count} transação(ões) encontrada(s).`;
+}
+
 export function Dashboard() {
   const { logout } = useAuth();
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -16,6 +23,7 @@ export function Dashboard() {
   });
 
   const { transactions, isLoading, isFetching, isError, refetch } = useTransactions(selectedDate);
+  const feedStatusMessage = getFeedStatusMessage(isLoading, isError, transactions?.length);
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center p-4 sm:p-6">
@@ -86,13 +94,7 @@ export function Dashboard() {
           className="bg-zinc-900/40 border border-zinc-800/60 rounded-2xl p-6 text-center text-zinc-400 text-sm space-y-1"
         >
           <p className="text-zinc-300 font-medium">Feed de Transações</p>
-          <p className="text-xs text-zinc-500">
-            {isLoading
-              ? 'Carregando movimentações...'
-              : (transactions?.length ?? 0) === 0
-                ? 'Nenhuma transação encontrada neste mês.'
-                : `${transactions?.length} transação(ões) encontrada(s).`}
-          </p>
+          <p className="text-xs text-zinc-500">{feedStatusMessage}</p>
         </section>
       </div>
     </main>
