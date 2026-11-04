@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { toast } from 'sonner';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.tsx';
 import { AUTH_STORAGE_KEY } from './context/AuthContext.tsx';
@@ -16,6 +15,14 @@ vi.mock('sonner', () => ({
 
 vi.mock('./api/auth.ts', () => ({
   probeApiKey: (key: string) => mockProbeApiKey(key),
+}));
+
+vi.mock('./api/transactions.ts', () => ({
+  getTransactions: vi.fn().mockResolvedValue([]),
+  getUtcMonthRange: vi.fn().mockReturnValue({
+    startDate: '2026-10-01T00:00:00.000Z',
+    endDate: '2026-10-31T23:59:59.999Z',
+  }),
 }));
 
 describe('App Root Integration', () => {
@@ -46,7 +53,7 @@ describe('App Root Integration', () => {
     expect(screen.queryByRole('button', { name: /sair/i })).not.toBeInTheDocument();
   });
 
-  it('renders the authenticated application shell when an api key is present', () => {
+  it('renders the authenticated dashboard when an api key is present', () => {
     localStorage.setItem(AUTH_STORAGE_KEY, 'stored_valid_key');
 
     render(
@@ -56,9 +63,7 @@ describe('App Root Integration', () => {
     );
 
     expect(screen.getByRole('heading', { name: /^coin$/i })).toBeInTheDocument();
-    expect(
-      screen.getByText(/ready for fast, offline-first mobile expense tracking/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: /navegação de mês/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sair/i })).toBeInTheDocument();
     expect(screen.queryByLabelText(/chave de acesso/i)).not.toBeInTheDocument();
   });
@@ -85,9 +90,7 @@ describe('App Root Integration', () => {
 
     // Wait for view transition to authenticated dashboard
     await waitFor(() => {
-      expect(
-        screen.getByText(/ready for fast, offline-first mobile expense tracking/i),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('navigation', { name: /navegação de mês/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /sair/i })).toBeInTheDocument();
       expect(screen.queryByLabelText(/chave de acesso/i)).not.toBeInTheDocument();
     });
@@ -114,8 +117,7 @@ describe('App Root Integration', () => {
     expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument();
   });
 
-  it('triggers a success toast notification when test button is clicked in dashboard', async () => {
-    const user = userEvent.setup();
+  it('renders the Dev Sandbox button in development mode', () => {
     localStorage.setItem(AUTH_STORAGE_KEY, 'stored_valid_key');
 
     render(
@@ -124,9 +126,6 @@ describe('App Root Integration', () => {
       </QueryClientProvider>,
     );
 
-    const button = screen.getByRole('button', { name: /test toast notification/i });
-    await user.click(button);
-
-    expect(toast.success).toHaveBeenCalledWith('Tooling initialized successfully!');
+    expect(screen.getByRole('button', { name: /abrir dev sandbox/i })).toBeInTheDocument();
   });
 });
